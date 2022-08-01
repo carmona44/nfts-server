@@ -11,7 +11,7 @@ export class CryptoavatarsController {
     ) {}
 
     @Post('init')
-    async initCollection(): Promise<Cryptoavatar[]> {
+    async initCollection(): Promise<string> {
         return this.cryptoavatarsService.initCollection();
     }
 
