@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { CryptoavatarsService } from './cryptoavatars.service';
 import { CryptoavatarFilterDto } from './dtos/cryptoavatar-filter.dto';
+import { PaginationParamsDto } from './dtos/pagination-params.dto';
 import { Cryptoavatar } from './schemas/cryptoavatar.schema';
+import { Request } from 'express';
 
 @Controller('cryptoavatars')
 export class CryptoavatarsController {
@@ -16,8 +18,8 @@ export class CryptoavatarsController {
     }
 
     @Get()
-    async find(@Query() queryParams: CryptoavatarFilterDto): Promise<Cryptoavatar[]> {
-        return this.cryptoavatarsService.find(queryParams);
+    async find(@Req() req: Request, @Query() queryParams: CryptoavatarFilterDto, @Query() paginationParams: PaginationParamsDto): Promise<any> {
+        return this.cryptoavatarsService.find(queryParams, paginationParams, req.url);
     }
     
     @Get(':id')

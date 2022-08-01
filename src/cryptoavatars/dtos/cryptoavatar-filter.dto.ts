@@ -19,4 +19,5 @@ export class CryptoavatarFilterDto {
     @Type(() => Number) 
     @IsNumber()
     nftId?: number;
+
 }

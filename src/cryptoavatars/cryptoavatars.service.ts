@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { CryptoavatarFilterDto } from './dtos/cryptoavatar-filter.dto';
+import { PaginationParamsDto } from './dtos/pagination-params.dto';
 import { Cryptoavatar, CryptoavatarDocument } from './schemas/cryptoavatar.schema';
 
 @Injectable()
@@ -32,8 +33,36 @@ export class CryptoavatarsService {
         }
     }
 
-    async find(queryParams: CryptoavatarFilterDto): Promise<Cryptoavatar[]> {
-        return this.cryptoavatarModel.find(queryParams);
+    async find(queryParams: CryptoavatarFilterDto, paginationParams: PaginationParamsDto, url: string): Promise<any> {
+        const API_NFTS_SERVER = 'http://localhost:3000';
+        const { skip, limit } = paginationParams;
+        const query = { 
+            ...queryParams, 
+            ...queryParams.description ? { description: { $regex: queryParams.description, $options: 'i'} } : {} 
+        };
+        const totalDataItems = await this.cryptoavatarModel.find(query).countDocuments();
+        const totalPages = Math.floor((totalDataItems / limit) + 0.99) || 1;
+        const currentPage = Math.ceil((skip - 1) / limit) + 1 || 1;
+        const data = await this.cryptoavatarModel
+            .find(query)
+            .sort({ _id: -1 })
+            .skip(skip)
+            .limit(limit);
+        let nextPage = new URL(`${API_NFTS_SERVER}${url}`);
+        nextPage.searchParams.set('skip', `${skip + limit}`);
+        let prevPage = new URL(`${API_NFTS_SERVER}${url}`);
+        prevPage.searchParams.set('skip', `${skip - limit}`);
+
+        return { 
+            data, 
+            pagination: {
+                nextPage: (currentPage < totalPages) ? nextPage : "",
+                prevPage: (currentPage > 1) ? prevPage : "",
+                currentPage,
+                totalPages,
+                totalDataItems
+            } 
+        };
     }
 
     async findOne(id: string): Promise<Cryptoavatar> {
