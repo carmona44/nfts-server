@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CryptoavatarsService } from './cryptoavatars.service';
+import { CryptoavatarFilterDto } from './dtos/cryptoavatar-filter.dto';
 import { Cryptoavatar } from './schemas/cryptoavatar.schema';
 
 @Controller('cryptoavatars')
@@ -15,8 +16,8 @@ export class CryptoavatarsController {
     }
 
     @Get()
-    async find(@Query() params): Promise<Cryptoavatar[]> {
-        return this.cryptoavatarsService.find();
+    async find(@Query() queryParams: CryptoavatarFilterDto): Promise<Cryptoavatar[]> {
+        return this.cryptoavatarsService.find(queryParams);
     }
     
     @Get(':id')

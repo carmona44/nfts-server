@@ -1,13 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Transform } from 'class-transformer';
 import { Document } from 'mongoose';
 
 export type CryptoavatarDocument = Cryptoavatar & Document;
 
-@Schema()
+@Schema({ versionKey: false })
 export class Cryptoavatar {
 
     @Prop()
-    image_url: string;
+    imageUrl: string;
 
     @Prop()
     name: string;
@@ -18,11 +19,23 @@ export class Cryptoavatar {
     @Prop()
     nftId: number;
 
-    /*@Prop()
-    creator: any;
+    @Prop(raw({
+        profileImgUrl: { type: String },
+        address: { type: String }
+    }))
+    creator: {
+        profileImgUrl: string,
+        address: string
+    };
 
-    @Prop()
-    owner: any;*/
+    @Prop(raw({
+        profileImgUrl: { type: String },
+        address: { type: String }
+    }))
+    owner: {
+        profileImgUrl: string,
+        address: string
+    };
 
 }
 
