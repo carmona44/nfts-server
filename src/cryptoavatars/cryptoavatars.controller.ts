@@ -1,11 +1,13 @@
-import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { CryptoavatarsService } from './cryptoavatars.service';
 import { CryptoavatarFilterDto } from './dtos/cryptoavatar-filter.dto';
 import { PaginationParamsDto } from './dtos/pagination-params.dto';
 import { Cryptoavatar } from './schemas/cryptoavatar.schema';
 import { Request } from 'express';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Cryptoavatars')
 @Controller('cryptoavatars')
 export class CryptoavatarsController {
