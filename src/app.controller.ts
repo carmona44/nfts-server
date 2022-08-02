@@ -1,8 +1,9 @@
 import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiHeaders, ApiOperation } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
-import { LocalAuthGuard } from './auth/local-auth.guard';
+import { LoginBodyRequestDto } from './auth/dtos/login-body-request.dto';
+import { LocalAuthGuard } from './auth/guards/local-auth.guard';
 
 @Controller()
 export class AppController {
@@ -20,6 +21,8 @@ export class AppController {
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
+  @ApiOperation({ summary: 'Login service. If succeeds, provides a JWT' })
+  @ApiBody({ type: LoginBodyRequestDto })
   async login(@Request() request) {
     return this.authService.login(request.user);
   }
