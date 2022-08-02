@@ -66,7 +66,7 @@ export class CryptoavatarsService {
     }
 
     async findOne(id: string): Promise<Cryptoavatar> {
-        return this.cryptoavatarModel.findOne({ name: id });
+        return this.cryptoavatarModel.findOne({ nftId: id });
     }
 
     serializeAsset(asset): Cryptoavatar {
