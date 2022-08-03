@@ -6,6 +6,7 @@ import { lastValueFrom } from 'rxjs';
 import { CryptoavatarFilterDto } from './dtos/cryptoavatar-filter.dto';
 import { PaginationParamsDto } from './dtos/pagination-params.dto';
 import { Cryptoavatar, CryptoavatarDocument } from './schemas/cryptoavatar.schema';
+import { OPENSEA_API_URL, API_NFTS_SERVER } from './constants';
 
 @Injectable()
 export class CryptoavatarsService {
@@ -20,7 +21,6 @@ export class CryptoavatarsService {
         if((await this.cryptoavatarModel.find())?.length > 0) { return 'Assets have already been loaded.' }
 
         try {
-            const OPENSEA_API_URL = 'https://testnets-api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=50&collection=cryptoavatars&include_orders=false';
             const response = await lastValueFrom(this.httpService.get(OPENSEA_API_URL));
             const assets: Cryptoavatar[] = response.data.assets.map( asset => this.serializeAsset(asset) );
     
@@ -34,40 +34,29 @@ export class CryptoavatarsService {
     }
 
     async find(queryParams: CryptoavatarFilterDto, paginationParams: PaginationParamsDto, url: string): Promise<any> {
-        const API_NFTS_SERVER = 'http://localhost:3000';
         const { skip, limit } = paginationParams;
         const query = { 
             ...queryParams, 
             ...queryParams.description ? { description: { $regex: queryParams.description, $options: 'i'} } : {} 
         };
-        const totalDataItems = await this.cryptoavatarModel.find(query).countDocuments();
-        const totalPages = Math.floor((totalDataItems / limit) + 0.99) || 1;
-        const currentPage = Math.ceil((skip - 1) / limit) + 1 || 1;
+        
         const data = await this.cryptoavatarModel
             .find(query)
             .sort({ _id: -1 })
             .skip(skip)
             .limit(limit);
-        let nextPage = new URL(`${API_NFTS_SERVER}${url}`);
-        nextPage.searchParams.set('skip', `${skip + limit}`);
-        let prevPage = new URL(`${API_NFTS_SERVER}${url}`);
-        prevPage.searchParams.set('skip', `${skip - limit}`);
+        const pagination = await this.buildPaginationObject(skip, limit, query, url);
 
-        return { 
-            data, 
-            pagination: {
-                nextPage: (currentPage < totalPages) ? nextPage : "",
-                prevPage: (currentPage > 1) ? prevPage : "",
-                currentPage,
-                totalPages,
-                totalDataItems
-            } 
-        };
+        return { data, pagination };
     }
 
     async findOne(id: string): Promise<Cryptoavatar> {
         return this.cryptoavatarModel.findOne({ nftId: id });
     }
+
+    //====================================================
+    // Support functions
+    //====================================================
 
     serializeAsset(asset): Cryptoavatar {
         return {
@@ -81,6 +70,25 @@ export class CryptoavatarsService {
                 profileImgUrl: asset.creator?.profile_img_url, 
                 address: asset.creator?.address 
             }
+        };
+    }
+
+    async buildPaginationObject(skip: number, limit: number, query: any, url: string): Promise<any> {
+        const totalDataItems = await this.cryptoavatarModel.find(query).countDocuments();
+        const totalPages = Math.floor((totalDataItems / limit) + 0.99) || 1;
+        const currentPage = Math.ceil((skip - 1) / limit) + 1 || 1;
+
+        let nextPage = new URL(`${API_NFTS_SERVER}${url}`);
+        nextPage.searchParams.set('skip', `${skip + limit}`);
+        let prevPage = new URL(`${API_NFTS_SERVER}${url}`);
+        prevPage.searchParams.set('skip', `${skip - limit}`);
+
+        return {
+            nextPage: (currentPage < totalPages) ? nextPage : "",
+            prevPage: (currentPage > 1) ? prevPage : "",
+            currentPage,
+            totalPages,
+            totalDataItems
         };
     }
     

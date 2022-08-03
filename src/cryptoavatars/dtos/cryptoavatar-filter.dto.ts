@@ -25,4 +25,24 @@ export class CryptoavatarFilterDto {
     @IsNumber()
     nftId?: number;
 
+    @ApiPropertyOptional({ description: 'Owner address of the asset' })
+    @IsOptional() 
+    @IsString()
+    'owner.address'?: string;
+
+    @ApiPropertyOptional({ description: 'Owner profileImgUrl of the asset' })
+    @IsOptional() 
+    @IsString()
+    'owner.profileImgUrl'?: string;
+
+    @ApiPropertyOptional({ description: 'Owner address of the asset' })
+    @IsOptional() 
+    @IsString()
+    'creator.address'?: string;
+
+    @ApiPropertyOptional({ description: 'Owner profileImgUrl of the asset' })
+    @IsOptional() 
+    @IsString()
+    'creator.profileImgUrl'?: string;
+
 }

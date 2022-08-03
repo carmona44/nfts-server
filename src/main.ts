@@ -8,7 +8,8 @@ async function bootstrap() {
 
     // Handle validations and transformations for DTOs
     app.useGlobalPipes(new ValidationPipe({
-        transform: true
+        transform: true,
+        whitelist: true
     }));
 
     // Swagger-OpenAPI configuration
