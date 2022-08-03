@@ -17,7 +17,7 @@ export class CryptoavatarsService {
 
     async initCollection(): Promise<string> {
 
-        if((await this.cryptoavatarModel.find()).length > 0) { return 'Assets have already been loaded.' }
+        if((await this.cryptoavatarModel.find())?.length > 0) { return 'Assets have already been loaded.' }
 
         try {
             const OPENSEA_API_URL = 'https://testnets-api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=50&collection=cryptoavatars&include_orders=false';
