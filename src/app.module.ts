@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: () => ({ uri: 'mongodb://localhost/nfts' })
+      useFactory: () => ({ uri: process.env.MONGODB_URI || 'mongodb://localhost/nfts' })
     }),
     CryptoavatarsModule,
     AuthModule
